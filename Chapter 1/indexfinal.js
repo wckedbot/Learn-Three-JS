@@ -1,14 +1,18 @@
+var camera;
+var scene;
+var renderer;
+
 function init() {
     var stats = initStats();
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     camera.position.x = -30;
     camera.position.y = 40;
     camera.position.z = 30;
     camera.lookAt(scene.position);
 
-    var renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer();
     renderer.setClearColor(0xEEEEEE, 1.0);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMapEnabled = true;
@@ -98,6 +102,13 @@ function init() {
         stats.domElement.style.top = '0px';
         document.getElementById("Stats-output").appendChild(stats.domElement);
         return stats;
+    }
+    window.addEventListener('resize', onResize, false);
+
+    function onResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
     }
 }
 init();
