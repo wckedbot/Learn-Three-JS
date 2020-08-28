@@ -133,7 +133,7 @@
                     color: Math.random() * 0xffffff
                 });
                 var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-                sphere.castShado = true;
+                sphere.castShadow = true;
                 sphere.name = "sphere-" + scene.children.length;
                 sphere.position.x = -20 + Math.round((Math.random() * planeGeometry.parameters.width));
                 sphere.position.y = Math.round((Math.random() * 5));
