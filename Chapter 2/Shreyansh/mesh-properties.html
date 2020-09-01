@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <title>Learn Three.js </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/threejs/r84/three.min.js">
+    </script>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="WebGL-output">
+
+    </div>
+    <div id="Stats-output">
+
+    </div>
+</body>
+<script type="text/javascript">
+    var camera;
+    var scene;
+    var renderer;
+
+    function init() {
+        var stats = initStats();
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        camera.position.x = -30;
+        camera.position.y = 40;
+        camera.position.z = 30;
+        camera.lookAt(scene.position);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0xEEEEEE, 1.0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMapEnabled = true;
+
+        var planeMaterial = new THREE.MeshLambertMaterial({
+            color: 0xcccccc
+        });
+        var planeGeometry = new THREE.PlaneGeometry(60, 40, 1, 1);
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 10;
+        plane.position.y = 0;
+        plane.position.z = 0;
+        scene.add(plane);
+
+        var ambientLight = new THREE.AmbientLight(0x0c0c0c);
+        scene.add(ambientLight);
+
+        var spotLight = new THREE.SpotLight(0xcccccc);
+
+        spotLight.position.set(-40, 60, -10);
+        spotLight.castShadow = true;
+        spotLight.shadowCameraFov = 45;
+        spotLight.shadowBias = 0.0001;
+        spotLight.shadowDarkness = 0.2;
+        spotLight.shadowMapWidth = 2048;
+        spotLight.shadowMapHeight = 2048;
+        scene.add(spotLight);
+        document.getElementById("WebGL-output").appendChild(renderer.domElement);
+
+        var step = 0;
+
+        var controls = new function () {
+            this.scaleX = 1;
+            this.scaleY = 1;
+            this.scaleZ = 1;
+
+            this.positionX = 0;
+            this.positionY = 0;
+            this.positionZ = 0;
+
+            this.rotationX = 0;
+            this.rotationY = 0;
+            this.rotationZ = 0;
+
+            this.translateX = 0;
+            this.translateY = 0;
+            this.translateZ = 0;
+
+            this.visible = true;
+
+            this.translate = function () {
+
+                cube.translateX(controls.translateX);
+                cube.translateY(controls.translateY);
+                cube.translateZ(controls.translateZ);
+
+                controls.positionX = cube.position.x;
+                controls.positionY = cube.position.y;
+                controls.positionZ = cube.position.z;
+            }
+        };
+
+
+        var material = new THREE.MeshLambertMaterial({
+            color: 0x44ff44
+        });
+        var geom = new THREE.BoxGeometry(4, 4, 4);
+        var cube = new THREE.Mesh(geom, material);
+        cube.castShadow = true;
+        scene.add(cube);
+
+
+
+
+
+
+
+        var gui = new dat.GUI();
+        guiScale = gui.addFolder('scale');
+        guiScale.add(controls, 'scaleX', 0, 5);
+        guiScale.add(controls, 'scaleY', 0, 5);
+        guiScale.add(controls, 'scaleZ', 0, 5);
+
+        guiPosition = gui.addFolder('position');
+        contX = guiPosition.add(controls, 'positionX', -10, 10);
+        contY = guiPosition.add(controls, 'positionY', -10, 10);
+        contZ = guiPosition.add(controls, 'positionZ', -10, 10);
+
+        contX.listen();
+        contX.onChange(function (value) {
+            cube.position.x = controls.positionX;
+        })
+
+
+        contY.listen();
+        contY.onChange(function (value) {
+            cube.position.y = controls.positionY;
+        })
+
+
+        contZ.listen();
+        contZ.onChange(function (value) {
+            cube.position.z = controls.positionZ;
+        })
+
+
+        guiRotation = gui.addFolder('rotation');
+        guiRotation.add(controls, 'rotationX', -4, 4);
+        guiRotation.add(controls, 'rotationY', -4, 4);
+        guiRotation.add(controls, 'rotationZ', -4, 4);
+
+
+        guiTranslate = gui.addFolder('Translate');
+        guiTranslate.add(controls, 'translateX', -10, 10);
+        guiTranslate.add(controls, 'translateY', -10, 10);
+        guiTranslate.add(controls, 'translateZ', -10, 10);
+        gui.add(controls, 'translate');
+        gui.add(controls, 'visible');
+
+        renderScene();
+
+        function renderScene() {
+            cube.visible = controls.visible;
+
+            cube.rotation.x = controls.rotationX;
+            cube.rotation.y = controls.rotationY;
+            cube.rotation.z = controls.rotationZ;
+
+            cube.scale.set(controls.scaleX, controls.scaleY, controls.scaleZ);
+
+            stats.update();
+            requestAnimationFrame(renderScene);
+            renderer.render(scene, camera);
+        }
+
+
+
+
+
+
+
+
+
+
+
+        function initStats() {
+            var stats = new Stats();
+            stats.setMode(0);
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+            document.getElementById("Stats-output").appendChild(stats.domElement);
+            return stats;
+        }
+        window.addEventListener('resize', onResize, false);
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    }
+    window.onload = init;
+</script>
+
+</html>
